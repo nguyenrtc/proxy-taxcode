@@ -5,7 +5,8 @@ const app = express();
 
 app.use(express.json());
 
-app.get('/get-taxpayer/:taxCode', async (req, res) => {
+// Route xử lý mọi yêu cầu theo dạng /<taxCode>
+app.get('/:taxCode', async (req, res) => {
   const taxCode = req.params.taxCode;
   const url = `https://hoadondientu.gdt.gov.vn:30000/category/public/dsdkts/${taxCode}/manager`;
 
@@ -13,11 +14,16 @@ app.get('/get-taxpayer/:taxCode', async (req, res) => {
     const response = await axios.get(url);
     res.json(response.data);
   } catch (err) {
-    res.status(500).json({ error: 'Không lấy được dữ liệu', detail: err.message });
+    console.error(`Lỗi gọi đến GDT với taxCode ${taxCode}:`, err.message);
+    res.status(500).json({
+      error: 'Không lấy được dữ liệu từ GDT',
+      detail: err.message,
+    });
   }
 });
 
+// Start server
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-  console.log(`Proxy server đang chạy tại cổng ${PORT}`);
+  console.log(`Server proxy đang chạy tại cổng ${PORT}`);
 });
